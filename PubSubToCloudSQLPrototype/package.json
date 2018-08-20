@@ -1,0 +1,13 @@
+{
+  "name": "load-to-cloud-sql",
+  "version": "0.0.0",
+  "description": "LoadToCloudSQL",
+  "main": "app.js",
+  "author": {
+    "name": "BaileyMa"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^0.18.0",
+    "mysql": "^2.16.0"
+  }
+}
