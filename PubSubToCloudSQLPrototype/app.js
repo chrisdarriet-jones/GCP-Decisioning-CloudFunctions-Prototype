@@ -7,7 +7,6 @@ const cloudSQLconnection = require('./cloudsqlconnection');
  */
 exports.PubSubToCloudSQLPrototype = (data, context) => {
     const pubsubMsg = data;
-
     // When testing the Cloud function data contains the JSON object but for PubSub data contains an object of data which is base64 encoded.
     // The following line standardises the dataToLoad to a JSON object regardless if using the cloud function test option or PubSub. 
     const dataToLoad = pubsubMsg.data ? JSON.parse(Buffer.from(pubsubMsg.data, 'base64').toString()) : pubsubMsg;
@@ -23,7 +22,10 @@ exports.PubSubToCloudSQLPrototype = (data, context) => {
 
     // Execute the sql query using for the first ? and dataToLoadWithoutID for the second ? in the SQL statement
     pool.query(sql, [dataToLoad, dataToLoadWithoutID], function (error, results, fields) {
-        if (error) throw error;
+        if (error) {
+            console.log(error);
+            throw error;
+        }
         // Log the results to the console to show in Stackdriver logging
         console.log(`Result of insert/update: ${JSON.stringify(results)}!`);
     });

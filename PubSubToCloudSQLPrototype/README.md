@@ -20,19 +20,19 @@ gcloud pubsub topics create decisioningTopic
 Load Cloud Shell and run the following: -
 ```
 gcloud config set project name-of-your-project
-gcloud sql instances create decisioninginstance --region=europe-west1 --database-version=MYSQL_5_7 --tier=db-f1-micro 
-gcloud sql instances patch --assign-ip decisioninginstance
-gcloud sql users set-password root % --instance decisioninginstance --password [PASSWORD]
-gcloud sql users create decisioninguser % --instance=decisioninginstance --password [PASSWORD]
-gcloud sql databases create decisioningdatabase --instance=decisioninginstance
-gcloud sql connect decisioninginstance --user=root
+gcloud sql instances create decisioninginst --region=europe-west1 --database-version=MYSQL_5_7 --tier=db-f1-micro 
+gcloud sql instances patch --assign-ip decisioninginst
+gcloud sql users set-password root % --instance decisioninginst --password [PASSWORD]
+gcloud sql users create decisioninguser % --instance=decisioninginst --password [PASSWORD]
+gcloud sql databases create decisioningdatabase --instance=decisioninginst
+gcloud sql connect decisioninginst --user=root
 ```
 
 ## Create CustomerAttributes Table
 Run the following in the Cloud SQL shell: -
 ```sql
 use decisioningdatabase;
-CREATE TABLE CustomerAttributes(TrackingID varchar(100), MoviesUpliftScore decimal(20, 18), SportsUpliftScore decimal(20, 18), TopTierUpliftScore decimal(20, 18), SkyGoExtraUpliftScore decimal(20, 18), FamilyUpliftScore decimal(20, 18), BroadbandUpliftScore decimal(20, 18), FibreUpgradeUpliftScore decimal(20, 18), FibreRegradeUpliftScore decimal(20, 18), MultiscreenUpliftScore decimal(20, 18), QUpgradeScore decimal(20, 18), BKUpgradeScore decimal(20, 18), StoreRentUpgradeScore decimal(20, 18), MobileTariffUpgradeScore decimal(20, 18), MobileHandsetUpgradeScore decimal(20, 18), SportsROIUpgradeScore decimal(20, 18), MoviesROIUpgradeScore decimal(20, 18), HDROIUpgradeScore decimal(20, 18), BBROIUpgradeScore decimal(20, 18), MoviesOfferEligibility boolean, SportsOfferEligibility boolean, TopTierOfferEligibility boolean, SkyGoExtraOfferEligibility boolean, FamilyOfferEligibility boolean, BroadbandOfferEligibility boolean, FibreUpgradeOfferEligibility boolean, FibreRegradeOfferEligibility boolean, MultiscreenOfferEligibility boolean, LastModifiedDate datetime, PRIMARY KEY(TrackingID));
+CREATE TABLE CustomerAttributes(TrackingID varchar(100), AccountNumber varchar(20), ProfilingAllowed boolean, ProdLatestDTVStatus varchar(50), AcctSubType varchar(100), MoviesUpgradeScore decimal(20, 18), SportsUpgradeScore decimal(20, 18), TopTierUpgradeScore decimal(20, 18), SkyGoExtraUpgradeScore decimal(20, 18), FamilyUpgradeScore decimal(20, 18), BroadbandUpgradeScore decimal(20, 18), FibreUpgradeUpgradeScore decimal(20, 18), FibreRegradeUpgradeScore decimal(20, 18), MultiscreenUpgradeScore decimal(20, 18), QUpgradeScore decimal(20, 18), BKUpgradeScore decimal(20, 18), StoreRentUpgradeScore decimal(20, 18), MobileTariffUpgradeScore decimal(20, 18), MobileHandsetUpgradeScore decimal(20, 18), SportsROIUpgradeScore decimal(20, 18), MoviesROIUpgradeScore decimal(20, 18), HDROIUpgradeScore decimal(20, 18), BBROIUpgradeScore decimal(20, 18), MoviesOfferEligibility boolean, SportsOfferEligibility boolean, TopTierOfferEligibility boolean, SkyGoExtraOfferEligibility boolean, FamilyOfferEligibility boolean, BroadbandOfferEligibility boolean, FibreUpgradeOfferEligibility boolean, FibreRegradeOfferEligibility boolean, MultiscreenOfferEligibility boolean, QOfferEligibility boolean, BKOfferEligibility Boolean, StoreRentOfferEligibility boolean, MobileTariffOfferEligibility boolean, MobileHandsetOfferEligibility boolean, SportsROIOfferEligibility boolean, MoviesROIOfferEligibility boolean, HDROIOfferEligibility boolean, BBROIOfferEligibility boolean, LastModifiedDate datetime, PRIMARY KEY(TrackingID));
 ```
 
 ## Deploy Node.js Code to Cloud Functions and Set Up Environment Variables
@@ -51,15 +51,19 @@ Post the following message to the PubSub topic: -
 ```
 {
   "TrackingID": "SOMEMADEUPTRACKINGID==",
-  "MoviesUpliftScore": 0.1,
-  "SportsUpliftScore": 0.2,
-  "TopTierUpliftScore": 0.3,
-  "SkyGoExtraUpliftScore": 0.4,
-  "FamilyUpliftScore": 0.5,
-  "BroadbandUpliftScore": 0.6,
-  "FibreUpgradeUpliftScore": 0.7,
-  "FibreRegradeUpliftScore": 0.8,
-  "MultiscreenUpliftScore": 0.9,
+  "AccountNumber":  0,
+  "ProfilingAllowed":  1,
+  "ProdLatestDTVStatus": "Active",
+  "AcctSubType": "Active",
+  "MoviesUpgradeScore": 0.1,
+  "SportsUpgradeScore": 0.2,
+  "TopTierUpgradeScore": 0.3,
+  "SkyGoExtraUpgradeScore": 0.4,
+  "FamilyUpgradeScore": 0.5,
+  "BroadbandUpgradeScore": 0.6,
+  "FibreUpgradeUpgradeScore": 0.7,
+  "FibreRegradeUpgradeScore": 0.8,
+  "MultiscreenUpgradeScore": 0.9,
   "QUpgradeScore": 0.10,
   "BKUpgradeScore": 0.11,
   "StoreRentUpgradeScore": 0.12,
@@ -77,7 +81,16 @@ Post the following message to the PubSub topic: -
   "BroadbandOfferEligibility": 1,
   "FibreUpgradeOfferEligibility": 0,
   "FibreRegradeOfferEligibility": 1,
-  "MultiscreenOfferEligibility": 0
+  "MultiscreenOfferEligibility": 0,
+  "QOfferEligibility": 1,
+  "BKOfferEligibility": 1,
+  "StoreRentOfferEligibility": 1,
+  "MobileTariffOfferEligibility": 1,
+  "MobileHandsetOfferEligibility": 1,
+  "SportsROIOfferEligibility": 1,
+  "MoviesROIOfferEligibility": 1,
+  "HDROIOfferEligibility": 1,
+  "BBROIOfferEligibility": 1
 }
 ```
 Check the cloud function logs to see if the record was inserted into the database. 
@@ -87,10 +100,21 @@ Run the following from the Cloud SQL shell: -
 select * from CustomerAttributes;
 ```
 
+## View results in MySQL Workbench
+To interact with Cloud SQL on your local machine or develop on your local machine connecting directly to Cloud SQL you will need to run a proxy.  Download the Cloud SQL Proxy from https://cloud.google.com/sql/docs/mysql/sql-proxy. 
+Once installed run CMD and navigate to the folder where the exe was saved. 
+Run the following command replacing the project name and instance name: -
+```
+cloud_sql_proxy.exe -instances=projectname:europe-west1:decisioninginst=tcp:3306
+```
+Install MySQL Workbench from: -
+https://dev.mysql.com/downloads/workbench/
+
+
 ## Clear Down
 You will be continue to be charged for Cloud SQL if you leave it running, remove the database instance by running the following from Cloud Shell: -
 ```
-gcloud sql instances delete decisioninginstance
+gcloud sql instances delete decisioninginst
 gcloud beta functions delete PubSubToCloudSQLPrototype --region europe-west1
 gcloud pubsub topics delete decisioningTopic
 ```
